@@ -6,7 +6,7 @@ import enum
 
 from sqlalchemy.sql.sqltypes import DateTime
 
-class PaymentType(enum.enum):
+class PaymentType(enum.Enum):
     cash = 'CASH'
     credit = 'CREDIT'
     cheque = 'CHEQUE'
