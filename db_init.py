@@ -9,12 +9,12 @@ def db_init():
     customer3 = Customer(name='Joe Biden', address='The White House 1600 Pennsylvania Avenue NW Washington, DC 20500',
                             countryCode=1, email='joseph.biden@usa.gov')
 
-    product1 = Product(productDescription='Nvidia Geforce RTX 3090', pricePerUnit=700, currency='USD', quantityAvailable=10)
+    product1 = Product(productDescription='Nvidia Geforce RTX 3090', pricePerUnit=700, currency='USD', quantityAvailable=5)
 
     db.session.add(customer1)
     db.session.add(customer2)
     db.session.add(customer3)
 
     db.session.add(product1)
-    
+
     db.session.commit()
