@@ -1,5 +1,7 @@
 from flask import Flask, request, jsonify
-app = Flask(__name__)
+
+from objects import Customer, Order, Product
+from app import app, db
 
 payload = {"customerId": "marounayli",
            "customerEmail": "marounayle@gmail.com",
@@ -15,7 +17,16 @@ payload = {"customerId": "marounayli",
            }
 
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/order/<id>', methods=['GET'])
+def get_order(id):
+    print(db.session.query(Order).all())
+    order = db.session.query(Order).filter_by(id=id).first()
+    if order:
+        return jsonify({'orderId': order.id})
+    else:
+        return jsonify({'error_code': 404, 'message': "Order not found"})
+
+@app.route('/order', methods=['POST'])
 def hello_world():
     print("Received ", request.json)
     return jsonify(payload)

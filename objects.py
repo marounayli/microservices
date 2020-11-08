@@ -1,19 +1,19 @@
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relation, relationship
+from sqlalchemy.orm import relationship
 from sqlalchemy import Column, Integer, String, Float, Boolean, Enum, DateTime
-from sqlalchemy.sql.schema import ForeignKey, PrimaryKeyConstraint
+from sqlalchemy.sql.schema import ForeignKey
 import enum
-
+from app import db
 from sqlalchemy.sql.sqltypes import DateTime
+
+# create an engine
 
 class PaymentType(enum.Enum):
     cash = 'CASH'
     credit = 'CREDIT'
     cheque = 'CHEQUE'
 
-Base = declarative_base()
 
-class Customer(Base):
+class Customer(db.Model):
     __tablename__ = 'customers'
     
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -25,8 +25,7 @@ class Customer(Base):
     # Defining relationships
     order = relationship("Order")
 
-
-class Product(Base):
+class Product(db.Model):
     __tablename__ = 'products'
 
     id = Column(Integer, primary_key=True, autoincrement=True)   
@@ -36,10 +35,9 @@ class Product(Base):
     quantityAvailable = Column(Integer)
 
     # Defining relationships
-    order = relationship("Order", uselist=False, back_populates="products")
+    order = relationship("Order", uselist=False, back_populates="product")
 
-
-class Order(Base):
+class Order(db.Model):
     __tablename__ = 'orders'
     
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -48,12 +46,12 @@ class Order(Base):
     quantity = Column(Integer)
 
     # Defining relationships
-    product = relationship("Product", back_populates="orders")
-    payment = relationship("Payment", uselist=False, back_populates='orders')
-    shipment = relationship("Shipment", uselist=False, back_populates='orders')
+    product = relationship("Product", back_populates="order")
+    payment = relationship("Payment", uselist=False, back_populates='order')
+    shipment = relationship("Shipment", uselist=False, back_populates='order')
 
 
-class Payment(Base):
+class Payment(db.Model):
     __tablename__ = 'payments'
     
     id = Column(Integer, primary_key=True)
@@ -62,11 +60,11 @@ class Payment(Base):
     paymentSuccesful = Column(Boolean)
 
     # Defining relationships
-    order = relationship("Order", back_populates='payments')
+    order = relationship("Order", back_populates='payment')
 
 
 
-class Shipment(Base):
+class Shipment(db.Model):
     __tablename__ = 'users'
     
     id = Column(Integer, primary_key=True)
@@ -79,7 +77,6 @@ class Shipment(Base):
     arrived = Column(Boolean)
 
     # Defining relationships
-    order = relationship("Order", back_populates='shipments')
+    order = relationship("Order", back_populates='shipment')
 
-    
-    
+
