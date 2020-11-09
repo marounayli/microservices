@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify
+from flask import json
 
 from objects import Customer, Order, Product
 from app import app, db
@@ -13,9 +14,61 @@ def process_order(customer_id, product_id, quantity):
     db.session.commit()
 
 
+@app.route('/product/<id>', methods=['GET'])
+def get_product(id):
+    product = db.session.query(Product).filter_by(id=id).first()
+    if product:
+        return jsonify({"productId": product.id, 
+                        "productDescription": product.productDescription,
+                        "pricePerUnit": product.pricePerUnit, 
+                        "currency": product.currency,
+                        "quantityAvailable": product.quantityAvailable,
+                        })  
+    else:
+        return jsonify({'error_code': 404, 'message': "Product not found"})
+
+@app.route('/product', methods=['POST'])
+def create_product():
+    body = request.get_json()
+    desc = body.get('productDescription')
+    price = body.get('pricePerUnit')
+    currency = body.get('currency')
+    quantityAvailable = body.get('quantityAvailable')
+    if desc and price and currency and quantityAvailable:
+        product = Product(productDescription=desc,
+                      pricePerUnit=price, currency=currency,
+                      quantityAvailable=quantityAvailable)
+        db.session.add(product)
+        db.session.commit()
+        product = db.session.query(Product).filter_by(id=product.id).first()
+        return jsonify({'error_code': 200, 'message': 'Product created succesfully',
+        "productId": product.id, 
+                        "productDescription": product.productDescription,
+                        "pricePerUnit": product.pricePerUnit, 
+                        "currency": product.currency,
+                        "quantityAvailable": product.quantityAvailable,
+                        
+                    })
+    else:
+        return jsonify({'error_code': 400, 'message': 'Product not created - missing field'})
+
+
+@app.route('/products', methods=['GET'])
+def get_all_products():
+    products = db.session.query(Product).all()
+    if products:
+        return jsonify([{"productId": product.id, 
+                        "productDescription": product.productDescription,
+                        "pricePerUnit": product.pricePerUnit, 
+                        "currency": product.currency,
+                        "quantityAvailable": product.quantityAvailable,
+                    } for product in products])
+    else:
+        return jsonify({'error_code': 404, 'message': "No orders found"})
+
+
 @app.route('/order/<id>', methods=['GET'])
 def get_order(id):
-    print(db.session.query(Order).all())
     order = db.session.query(Order).filter_by(id=id).first()
     if order:
         customer = db.session.query(Customer).filter_by(id=order.customer_id).first()
