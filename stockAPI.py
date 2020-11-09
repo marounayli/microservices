@@ -14,6 +14,58 @@ def process_order(customer_id, product_id, quantity):
     db.session.commit()
 
 
+@app.route('/customer/<id>', methods=['GET'])
+def get_customer(id):
+    customer = db.session.query(Customer).filter_by(id=id).first()
+    if customer:
+        return jsonify({"customerId": customer.id, 
+                        "name": customer.name,
+                        "address": customer.address, 
+                        "countryCode": customer.countryCode,
+                        "email": customer.email
+                        })  
+    else:
+        return jsonify({'error_code': 404, 'message': "Customer not found"})
+
+@app.route('/customer', methods=['POST'])
+def create_customer():
+    body = request.get_json()
+    name = body.get('name')
+    address = body.get('address')
+    countryCode = body.get('countryCode')
+    email = body.get('email')
+    if name and address and countryCode and email:
+        customer = Customer(name=name,
+                            address=address,
+                            countryCode=countryCode,
+                            email=email)
+        db.session.add(customer)
+        db.session.commit()
+        customer = db.session.query(Customer).filter_by(id=customer.id).first()
+        return jsonify({'error_code': 200, 'message': 'Customer created succesfully',
+                        "customerId": customer.id, 
+                        "name": customer.name,
+                        "address": customer.address, 
+                        "countryCode": customer.countryCode,
+                        "email": customer.email,
+                    })
+    else:
+        return jsonify({'error_code': 400, 'message': 'Customer not created - missing field'})
+
+
+@app.route('/customers', methods=['GET'])
+def get_all_customers():
+    customers = db.session.query(Customer).all()
+    if customers:
+        return jsonify([{"customerId": customer.id, 
+                        "name": customer.name,
+                        "address": customer.address, 
+                        "countryCode": customer.countryCode,
+                        "email": customer.email,
+                    } for customer in customers])
+    else:
+        return jsonify({'error_code': 404, 'message': "No customers found"})
+
 @app.route('/product/<id>', methods=['GET'])
 def get_product(id):
     product = db.session.query(Product).filter_by(id=id).first()
