@@ -64,6 +64,27 @@ def get_all_products():
                         "quantityAvailable": product.quantityAvailable,
                     } for product in products])
     else:
+        return jsonify({'error_code': 404, 'message': "No products found"})
+
+@app.route('/orders', methods=['GET'])
+def get_all_orders():
+    orders = db.session.query(Order).all()
+    orders_list = []
+    if orders:
+        for order in orders:
+            customer = db.session.query(Customer).filter_by(id=order.customer_id).first()
+            product = db.session.query(Product).filter_by(id=order.product_id).first()
+            orders_list.append({"customerId":customer.id, 
+                            "customerName": customer.name,
+                            "customerEmail": customer.email, 
+                            "customerAddress":customer.address,
+                            "itemId": product.id,
+                            "itemDescription": product.productDescription,
+                            "quantity": order.quantity,
+                            "pricePerUnit": product.pricePerUnit,
+                            "currency": product.currency})
+        return jsonify(orders_list)
+    else:
         return jsonify({'error_code': 404, 'message': "No orders found"})
 
 
