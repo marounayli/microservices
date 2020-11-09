@@ -23,9 +23,9 @@ def get_customer(id):
                         "address": customer.address, 
                         "countryCode": customer.countryCode,
                         "email": customer.email
-                        })  
+                        }), 200
     else:
-        return jsonify({'error_code': 404, 'message': "Customer not found"})
+        return jsonify({'error_code': 404, 'message': "Customer not found"}), 404
 
 @app.route('/customer', methods=['POST'])
 def create_customer():
@@ -48,9 +48,9 @@ def create_customer():
                         "address": customer.address, 
                         "countryCode": customer.countryCode,
                         "email": customer.email,
-                    })
+                    }), 200
     else:
-        return jsonify({'error_code': 400, 'message': 'Customer not created - missing field'})
+        return jsonify({'error_code': 400, 'message': 'Customer not created - missing field'}), 400
 
 
 @app.route('/customers', methods=['GET'])
@@ -62,9 +62,9 @@ def get_all_customers():
                         "address": customer.address, 
                         "countryCode": customer.countryCode,
                         "email": customer.email,
-                    } for customer in customers])
+                    } for customer in customers]), 200
     else:
-        return jsonify({'error_code': 404, 'message': "No customers found"})
+        return jsonify({'error_code': 404, 'message': "No customers found"}), 404
 
 @app.route('/product/<id>', methods=['GET'])
 def get_product(id):
@@ -100,9 +100,9 @@ def create_product():
                         "currency": product.currency,
                         "quantityAvailable": product.quantityAvailable,
                         
-                    })
+                    }), 200
     else:
-        return jsonify({'error_code': 400, 'message': 'Product not created - missing field'})
+        return jsonify({'error_code': 400, 'message': 'Product not created - missing field'}), 400
 
 
 @app.route('/products', methods=['GET'])
@@ -114,9 +114,9 @@ def get_all_products():
                         "pricePerUnit": product.pricePerUnit, 
                         "currency": product.currency,
                         "quantityAvailable": product.quantityAvailable,
-                    } for product in products])
+                    } for product in products]), 200
     else:
-        return jsonify({'error_code': 404, 'message': "No products found"})
+        return jsonify({'error_code': 404, 'message': "No products found"}), 404
 
 @app.route('/orders', methods=['GET'])
 def get_all_orders():
@@ -135,9 +135,9 @@ def get_all_orders():
                             "quantity": order.quantity,
                             "pricePerUnit": product.pricePerUnit,
                             "currency": product.currency})
-        return jsonify(orders_list)
+        return jsonify(orders_list), 200
     else:
-        return jsonify({'error_code': 404, 'message': "No orders found"})
+        return jsonify({'error_code': 404, 'message': "No orders found"}), 404
 
 
 @app.route('/order/<id>', methods=['GET'])
@@ -154,9 +154,9 @@ def get_order(id):
                             "itemDescription": product.productDescription,
                             "quantity": order.quantity,
                             "pricePerUnit": product.pricePerUnit,
-                            "currency": product.currency})  
+                            "currency": product.currency}), 200 
     else:
-        return jsonify({'error_code': 404, 'message': "Order not found"})
+        return jsonify({'error_code': 404, 'message': "Order not found"}), 404
 
 
 @app.route('/order', methods=['POST'])
@@ -187,13 +187,13 @@ def post_order():
                                 "quantity": needed_quantity,
                                 "pricePerUnit": product.pricePerUnit,
                                 "currency": product.currency,
-                                "available": available})         
+                                "available": available}), 200        
             else:
-                return jsonify({'error_code': 404, 'message': "Product not found"})
+                return jsonify({'error_code': 404, 'message': "Product not found"}), 404
         else:
-            return jsonify({'error_code': 404, 'message': "Customer not found"})
+            return jsonify({'error_code': 404, 'message': "Customer not found"}), 404
     else:
-        return jsonify({'error_code': 400, 'message': "Order not created - missing fields"})
+        return jsonify({'error_code': 400, 'message': "Order not created - missing fields"}), 400
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
