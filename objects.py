@@ -5,7 +5,6 @@ import enum
 from app import db
 from sqlalchemy.sql.sqltypes import DateTime
 
-# create an engine
 
 class PaymentType(enum.Enum):
     cash = 'CASH'
