@@ -117,12 +117,14 @@ def create_product():
     price = body.get("pricePerUnit")
     currency = body.get("currency")
     quantity = body.get("quantity")
+    unitWeight = body.get("unitWeight")
     if desc and price and currency and quantity:
         product = Product(
             productDescription=desc,
             pricePerUnit=price,
             currency=currency,
             quantity=quantity,
+            unitWeight=unitWeight
         )
         db.session.add(product)
         db.session.commit()
@@ -136,6 +138,7 @@ def create_product():
                     "pricePerUnit": product.pricePerUnit,
                     "currency": product.currency,
                     "quantity": product.quantity,
+                    "unitWeight": product.unitWeight
                 }
             ),
             200,
