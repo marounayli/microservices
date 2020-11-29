@@ -3,6 +3,7 @@ from flask import json
 from objects import Customer, Order, Product, Shipment, Payment
 from app import app, db
 from db_init import db_init
+from sqlalchemy import text
 
 # db_init()
 
@@ -360,6 +361,21 @@ def get_order_details():
         }
         result_list.append(result)
     return jsonify(result_list)
+
+
+# @app.route("/testing", methods=["POST"])
+# def native():
+#     sql = text('''select O.id,C.name,PR.productDescription,O.quantity,O.quantity*PR.pricePerUnit as totalPrice, PR.currency, P.paymentSuccessful,S.initiated
+#                FROM orders O LEFT JOIN payments P on o.id = p.orderId
+#                LEFT JOIN customers C on C.id = O.customerId
+#                LEFT JOIN products PR on PR.Id = O.productId
+#                LEFT JOIN users S on S.orderId=O.id;''')
+#     result = db.engine.execute(sql)
+#     result_list=[]
+#     for res in result:
+
+#         result_list.append()
+#     return "pepehands"
 
 
 if __name__ == "__main__":
