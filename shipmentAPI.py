@@ -15,7 +15,6 @@ def create_shipment():
         order = db.session.query(Order).filter_by(id=orderId).first()
         product = db.session.query(Product).filter_by(
             id=order.productId).first()
-        print(order)
         shipment = Shipment(
             orderId=orderId,
             estimatedArrival=datetime.now(),
@@ -24,9 +23,6 @@ def create_shipment():
         )
         db.session.add(shipment)
         db.session.commit()
-        shipment_verification = (
-            db.session.query(Shipment).filter_by(id=shipment.id).first()
-        )
         return (
             jsonify(
                 {
@@ -73,7 +69,7 @@ def get_all_shipments():
 
 @app.route("/shipment/by_order/<id>", methods=["GET"])
 def get_shipment(id):
-    shipment = db.session.query(Shipment).filter_by(id=id).first()
+    shipment = db.session.query(Shipment).filter_by(orderId=id).first()
     if shipment:
         return (
             jsonify(
