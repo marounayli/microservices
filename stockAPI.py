@@ -4,7 +4,7 @@ from objects import Customer, Order, Product, Shipment
 from app import app, db
 from db_init import db_init
 
-db_init()
+# db_init()
 
 
 def process_order(customerId, productId, quantity):
@@ -186,6 +186,7 @@ def get_all_orders():
                 id=order.productId).first()
             orders_list.append(
                 {
+                    "orderId": order.id,
                     "customerId": customer.id,
                     "customerName": customer.name,
                     "customerEmail": customer.email,
@@ -254,7 +255,6 @@ def post_order():
                 return (
                     jsonify(
                         {
-                            "orderId": order.id,
                             "customerId": customerId,
                             "customerName": customer.name,
                             "customerEmail": customer.email,
