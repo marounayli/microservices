@@ -68,7 +68,7 @@ def get_customer():
                 [
                     {
                         "paymentId": payment.id,
-                        "orderId": payment.order_id,
+                        "orderId": payment.orderId,
                         "paymentType": payment.paymentType.name,
                         "paymentSuccessful": payment.paymentSuccessful
                     }
