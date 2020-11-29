@@ -71,5 +71,24 @@ def get_all_shipments():
         return jsonify({"error_code": 404, "message": "No shipments found"}), 404
 
 
+@app.route("/shipment/by_order/<id>", methods=["GET"])
+def get_shipment(id):
+    shipment = db.session.query(Shipment).filter_by(id=id).first()
+    if shipment:
+        return (
+            jsonify(
+                {
+                    "orderId": shipment.id,
+                    "estimatedArrival": shipment.estimatedArrival,
+                    "initiatedTime": shipment.initiatedTime,
+                    "initiated": shipment.initiated,
+                }
+            ),
+            200,
+        )
+    else:
+        return jsonify({"error_code": 404, "message": "Shipment not found"}), 404
+
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5002)

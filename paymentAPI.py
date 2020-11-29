@@ -81,6 +81,25 @@ def get_customer():
         return jsonify({"error_code": 404, "message": "Customer not found"}), 404
 
 
+@app.route("/payment/by_order/<id>", methods=["GET"])
+def get_shipment(id):
+    payment = db.session.query(Payment).filter_by(id=id).first()
+    if payment:
+        return (
+            jsonify(
+                {
+                    "id": payment.id,
+                    "orderId": payment.orderId,
+                    "paymentType": payment.paymentType.name,
+                    "paymentSuccessful": payment.paymentSuccessful
+                }
+            ),
+            200,
+        )
+    else:
+        return jsonify({"error_code": 404, "message": "Shipment not found"}), 404
+
+
 def checkPayment(customerId, CardNumber):
     return random.random() > 0.5
 
