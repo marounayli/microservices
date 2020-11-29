@@ -183,7 +183,7 @@ def get_all_orders():
                     id=order.customerId).first()
             )
             product = db.session.query(Product).filter_by(
-                id=order.product_id).first()
+                id=order.productId).first()
             orders_list.append(
                 {
                     "customerId": customer.id,
