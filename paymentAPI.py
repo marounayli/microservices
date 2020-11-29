@@ -25,8 +25,8 @@ def create_product():
                 paymentType), paymentSuccessful=True)
         else:
             payment = Payment(orderId=orderId, paymentType=PaymentType(
-                paymentType), paymentSuccessful=True)
-            flag = True
+                paymentType), paymentSuccessful=False)
+            flag = False
         db.session.add(payment)
         db.session.commit()
         payment = db.session.query(
@@ -82,10 +82,7 @@ def get_customer():
 
 
 def checkPayment(customerId, CardNumber):
-    sum = 0
-    for ch in str(customerId)+str(CardNumber):
-        sum += ord(ch)
-    return ((sum + 1500*random.random()) % 100) > 50
+    return random.random() > 0.5
 
 
 if __name__ == '__main__':

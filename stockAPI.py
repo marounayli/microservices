@@ -4,7 +4,7 @@ from objects import Customer, Order, Product, Shipment
 from app import app, db
 from db_init import db_init
 
-# db_init()
+db_init()
 
 
 def process_order(customerId, productId, quantity):
@@ -304,6 +304,30 @@ def get_all_shipments():
         )
     else:
         return jsonify({"error_code": 404, "message": "No shipments found"}), 404
+
+
+@app.route("/restore-stock", methods=["POST"])
+def restore_stock():
+    body = request.get_json()
+    orderId = body.get("orderId")
+    if orderId:
+        order = db.session.query(Order).filter_by(id=orderId).first()
+        if order:
+            product = db.session.query(Product).filter_by(
+                id=order.productId).first()
+            product.quantity += order.quantity
+            db.session.add(product)
+            db.session.commit()
+            return jsonify({
+                "orderId": orderId,
+                "productId": product.id,
+                "quantity": product.quantity,
+                "description": product.productDescription
+            }), 200
+        else:
+            return jsonify({"message": "Stock not restored; Order not found"}), 400
+    else:
+        return jsonify({"message": "Stock not restored; Missing request parameter : orderId"}), 400
 
 
 if __name__ == "__main__":
