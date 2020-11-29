@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from flask import json
-from objects import Customer, Order, Product, Shipment
+from objects import Customer, Order, Product, Shipment, Payment
 from app import app, db
 from db_init import db_init
 
@@ -333,6 +333,33 @@ def restore_stock():
             return jsonify({"message": "Stock not restored; Order not found"}), 400
     else:
         return jsonify({"message": "Stock not restored; Missing request parameter : orderId"}), 400
+
+
+@app.route("/order-details", methods=["GET"])
+def get_order_details():
+    orders = db.session.query(Order).all()
+    result_list = []
+    for order in orders:
+        shipment = db.session.query(Shipment).filter_by(
+            orderId=order.id).first()
+        product = db.session.query(Product).filter_by(
+            id=order.productId).first()
+        payment = db.session.query(Payment).filter_by(
+            orderId=order.id).first()
+        customer = db.session.query(Customer).filter_by(
+            id=order.customerId).first()
+        result = {
+            "orderId": order.id,
+            "customerName": customer.name,
+            "productDescription": product.productDescription,
+            "quantity": order.quantity,
+            "totalPrice": order.quantity*product.pricePerUnit,
+            "currency": product.currency,
+            "paymentSuccessful": payment.paymentSuccessful if payment else "N/A",
+            "initiated": shipment.initiated if shipment else "N/A"
+        }
+        result_list.append(result)
+    return jsonify(result_list)
 
 
 if __name__ == "__main__":
