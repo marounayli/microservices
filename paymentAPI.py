@@ -59,7 +59,7 @@ def create_product():
         )
 
 
-@app.route("/payments", methods=["GET"])
+@app.route("/payments/all", methods=["GET"])
 def get_customer():
     payments = db.session.query(Payment).all()
     if payments:
@@ -68,7 +68,7 @@ def get_customer():
                 [
                     {
                         "paymentId": payment.id,
-                        "orderId": payment.order_id,
+                        "orderId": payment.orderId,
                         "paymentType": payment.paymentType.name,
                         "paymentSuccessful": payment.paymentSuccessful
                     }
@@ -79,6 +79,25 @@ def get_customer():
         )
     else:
         return jsonify({"error_code": 404, "message": "Customer not found"}), 404
+
+
+@app.route("/payment/by_order/<id>", methods=["GET"])
+def get_shipment(id):
+    payment = db.session.query(Payment).filter_by(id=id).first()
+    if payment:
+        return (
+            jsonify(
+                {
+                    "id": payment.id,
+                    "orderId": payment.orderId,
+                    "paymentType": payment.paymentType.name,
+                    "paymentSuccessful": payment.paymentSuccessful
+                }
+            ),
+            200,
+        )
+    else:
+        return jsonify({"error_code": 404, "message": "Shipment not found"}), 404
 
 
 def checkPayment(customerId, CardNumber):
