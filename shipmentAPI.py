@@ -49,7 +49,7 @@ def create_shipment():
         )
 
 
-@app.route("/shipment", methods=["GET"])
+@app.route("/shipment/all", methods=["GET"])
 def get_all_shipments():
     shipments = db.session.query(Shipment).all()
     if shipments:

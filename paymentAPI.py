@@ -59,7 +59,7 @@ def create_product():
         )
 
 
-@app.route("/payments", methods=["GET"])
+@app.route("/payments/all", methods=["GET"])
 def get_customer():
     payments = db.session.query(Payment).all()
     if payments:
