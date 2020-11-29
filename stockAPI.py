@@ -180,7 +180,7 @@ def get_all_orders():
         for order in orders:
             customer = (
                 db.session.query(Customer).filter_by(
-                    id=order.customer_id).first()
+                    id=order.customerId).first()
             )
             product = db.session.query(Product).filter_by(
                 id=order.product_id).first()
