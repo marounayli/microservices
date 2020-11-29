@@ -28,7 +28,8 @@ def db_init():
         productDescription="Nvidia Geforce RTX 3090",
         pricePerUnit=700,
         currency="USD",
-        quantityAvailable=5,
+        quantity=1000,
+        unitWeight=0.4
     )
 
     db.session.add(customer1)

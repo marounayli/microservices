@@ -1,27 +1,91 @@
 from flask import Flask, request, jsonify
-app = Flask(__name__)
+from flask import json
+from datetime import datetime
+import random
 
-payload = {"customerId": "marounayli",
-           "customerEmail": "marounayle@gmail.com",
-           "customerAddress": "Bsaba, Mtoll Street Anibal Abi Antoun Bdlg",
-           "unitDimensions": "2x2",
-           "unitWeight": 400,
-           "itemId": "afsaa-eqwrqw-dwewww-ewewrewr",
-           "quantity": 2,
-           "itemDescription": "Nvidia Geforce RTX 3090",
-           "pricePerUnit": 700,
-           "currency": "USD",
-           "paymentType": "CREDIT",
-           "totalPrice": 1540,
-           "taxRate": 0.1,
-           "approved": True
-           }
+from objects import Customer, Order, Shipment, Product, Payment, PaymentType
+from app import app, db
 
 
-@app.route('/', methods=['GET', 'POST'])
-def hello_world():
-    print("Received ", request.json)
-    return jsonify(payload)
+@app.route("/payment", methods=["POST"])
+def create_product():
+    body = request.get_json()
+    print(body)
+    customerId = body.get("customerId")
+    customerEmail = body.get("customerEmail")
+    orderId = body.get("orderId")
+    paymentType = body.get("paymentType")
+    cardNumber = body.get("cardNumber")
+    order = db.session.query(Order).filter_by(id=orderId).first()
+    product = db.session.query(Product).filter_by(id=order.productId).first()
+    if None not in [customerId, customerEmail, orderId, paymentType, cardNumber]:
+        flag = True
+        if checkPayment(customerId, cardNumber):
+            payment = Payment(orderId=orderId, paymentType=PaymentType(
+                paymentType), paymentSuccessful=True)
+        else:
+            payment = Payment(orderId=orderId, paymentType=PaymentType(
+                paymentType), paymentSuccessful=True)
+            flag = True
+        db.session.add(payment)
+        db.session.commit()
+        payment = db.session.query(
+            Product).filter_by(id=payment.id).first()
+        return (
+            jsonify(
+                {
+                    "orderId": orderId,
+                    "customerId": customerId,
+                    "customerEmail": customerEmail,
+                    "paymentType": paymentType,
+                    "cardNumber": cardNumber,
+                    "productId": product.id,
+                    "quantity": order.quantity,
+                    "pricePerUnit": product.pricePerUnit,
+                    "accepted": flag,
+                    "productDescription": product.productDescription,
+                    "finalPrice": order.quantity*product.pricePerUnit,
+                    "currency": product.currency
+                }
+            ),
+            200,
+        )
+    else:
+        return (
+            jsonify(
+                {"error_code": 400, "message": "Payment not created - missing field"}
+            ),
+            400,
+        )
+
+
+@app.route("/payments", methods=["GET"])
+def get_customer():
+    payments = db.session.query(Payment).all()
+    if payments:
+        return (
+            jsonify(
+                [
+                    {
+                        "paymentId": payment.id,
+                        "orderId": payment.order_id,
+                        "paymentType": payment.paymentType.name,
+                        "paymentSuccessful": payment.paymentSuccessful
+                    }
+                    for payment in payments
+                ]
+            ),
+            200,
+        )
+    else:
+        return jsonify({"error_code": 404, "message": "Customer not found"}), 404
+
+
+def checkPayment(customerId, CardNumber):
+    sum = 0
+    for ch in str(customerId)+str(CardNumber):
+        sum += ord(ch)
+    return ((sum + 1500*random.random()) % 100) > 50
 
 
 if __name__ == '__main__':

@@ -2,37 +2,22 @@ from flask import Flask, request, jsonify
 from flask import json
 from datetime import datetime
 
-from objects import Customer, Order, Shipment
+from objects import Customer, Order, Shipment, Product
 from app import app, db
-
-response = {
-    "customerId": "marounayli",
-    "customerEmail": "marounayle@gmail.com",
-    "customerAddress": "Bsaba, Mtoll Street Anibal Abi Antoun Bdlg",
-    "unitDimensions": "2x2",
-    "unitWeight": 400,
-    "itemId": "afsaa-eqwrqw-dwewww-ewewrewr",
-    "quantity": 2,
-    "itemDescription": "Nvidia Geforce RTX 3090",
-    "initiated": True,
-    "estimatedTimeOfArrival": "15-08-2020",
-}
 
 
 @app.route("/shipment", methods=["POST"])
 def create_shipment():
     body = request.get_json()
-    order_id = body.get("orderId")
-    unitWeight = body.get("unitWeight")
-    unitDimension = body.get("unitDimention")
+    orderId = body.get("orderId")
 
-    if order_id and unitWeight and unitDimension:
-        order = db.session.query(Order).filter_by(id=order_id).first()
+    if orderId:
+        order = db.session.query(Order).filter_by(id=orderId).first()
+        product = db.session.query(Product).filter_by(
+            id=order.productId).first()
         print(order)
         shipment = Shipment(
-            order_id=order_id,
-            unitWeight=unitWeight,
-            unitDimension=unitDimension,
+            orderId=orderId,
             estimatedArrival=datetime.now(),
             initiatedTime=datetime.now(),
             initiated=True,
@@ -46,11 +31,11 @@ def create_shipment():
             jsonify(
                 {
                     "orderId": shipment.id,
-                    "unitWeight": shipment.unitWeight,
-                    "unitDimension": shipment.unitDimension,
+                    "unitWeight": product.unitWeight,
                     "estimatedArrival": shipment.estimatedArrival,
                     "initiatedTime": shipment.initiatedTime,
                     "initiated": shipment.initiated,
+                    "totalWeight": product.unitWeight*order.quantity
                 }
             ),
             200,
@@ -73,8 +58,6 @@ def get_all_shipments():
                 [
                     {
                         "orderId": shipment.id,
-                        "unitWeight": shipment.unitWeight,
-                        "unitDimension": shipment.unitDimension,
                         "estimatedArrival": shipment.estimatedArrival,
                         "initiatedTime": shipment.initiatedTime,
                         "initiated": shipment.initiated,

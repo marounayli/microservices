@@ -7,10 +7,12 @@ from db_init import db_init
 # db_init()
 
 
-def process_order(customer_id, product_id, quantity):
-    order = Order(customer_id=customer_id, product_id=product_id, quantity=quantity)
+def process_order(customerId, productId, quantity):
+    order = Order(customerId=customerId,
+                  productId=productId, quantity=quantity)
     db.session.add(order)
     db.session.commit()
+    return order
 
 
 @app.route("/customer/<id>", methods=["GET"])
@@ -50,8 +52,6 @@ def create_customer():
         return (
             jsonify(
                 {
-                    "error_code": 200,
-                    "message": "Customer created succesfully",
                     "customerId": customer.id,
                     "name": customer.name,
                     "address": customer.address,
@@ -103,7 +103,7 @@ def get_product(id):
                 "productDescription": product.productDescription,
                 "pricePerUnit": product.pricePerUnit,
                 "currency": product.currency,
-                "quantityAvailable": product.quantityAvailable,
+                "quantity": product.quantity,
             }
         )
     else:
@@ -116,13 +116,13 @@ def create_product():
     desc = body.get("productDescription")
     price = body.get("pricePerUnit")
     currency = body.get("currency")
-    quantityAvailable = body.get("quantityAvailable")
-    if desc and price and currency and quantityAvailable:
+    quantity = body.get("quantity")
+    if desc and price and currency and quantity:
         product = Product(
             productDescription=desc,
             pricePerUnit=price,
             currency=currency,
-            quantityAvailable=quantityAvailable,
+            quantity=quantity,
         )
         db.session.add(product)
         db.session.commit()
@@ -130,13 +130,12 @@ def create_product():
         return (
             jsonify(
                 {
-                    "error_code": 200,
                     "message": "Product created succesfully",
                     "productId": product.id,
                     "productDescription": product.productDescription,
                     "pricePerUnit": product.pricePerUnit,
                     "currency": product.currency,
-                    "quantityAvailable": product.quantityAvailable,
+                    "quantity": product.quantity,
                 }
             ),
             200,
@@ -162,7 +161,7 @@ def get_all_products():
                         "productDescription": product.productDescription,
                         "pricePerUnit": product.pricePerUnit,
                         "currency": product.currency,
-                        "quantityAvailable": product.quantityAvailable,
+                        "quantity": product.quantity,
                     }
                     for product in products
                 ]
@@ -180,16 +179,18 @@ def get_all_orders():
     if orders:
         for order in orders:
             customer = (
-                db.session.query(Customer).filter_by(id=order.customer_id).first()
+                db.session.query(Customer).filter_by(
+                    id=order.customer_id).first()
             )
-            product = db.session.query(Product).filter_by(id=order.product_id).first()
+            product = db.session.query(Product).filter_by(
+                id=order.product_id).first()
             orders_list.append(
                 {
                     "customerId": customer.id,
                     "customerName": customer.name,
                     "customerEmail": customer.email,
                     "customerAddress": customer.address,
-                    "itemId": product.id,
+                    "productId": product.id,
                     "itemDescription": product.productDescription,
                     "quantity": order.quantity,
                     "pricePerUnit": product.pricePerUnit,
@@ -205,8 +206,10 @@ def get_all_orders():
 def get_order(id):
     order = db.session.query(Order).filter_by(id=id).first()
     if order:
-        customer = db.session.query(Customer).filter_by(id=order.customer_id).first()
-        product = db.session.query(Product).filter_by(id=order.product_id).first()
+        customer = db.session.query(Customer).filter_by(
+            id=order.customerId).first()
+        product = db.session.query(Product).filter_by(
+            id=order.productId).first()
         return (
             jsonify(
                 {
@@ -214,7 +217,7 @@ def get_order(id):
                     "customerName": customer.name,
                     "customerEmail": customer.email,
                     "customerAddress": customer.address,
-                    "itemId": product.id,
+                    "productId": product.id,
                     "itemDescription": product.productDescription,
                     "quantity": order.quantity,
                     "pricePerUnit": product.pricePerUnit,
@@ -230,34 +233,35 @@ def get_order(id):
 @app.route("/order", methods=["POST"])
 def post_order():
     body = request.get_json()
-    customer_id = body.get("customerId")
-    product_id = body.get("itemId")
-    needed_quantity = body.get("quantity")
+    customerId = body.get("customerId")
+    productId = body.get("productId")
+    quantity = body.get("quantity")
 
-    customer = db.session.query(Customer).filter_by(id=customer_id).first()
-    product = db.session.query(Product).filter_by(id=product_id).first()
+    customer = db.session.query(Customer).filter_by(id=customerId).first()
+    product = db.session.query(Product).filter_by(id=productId).first()
 
-    if customer_id and product_id and needed_quantity:
+    if customerId and productId and quantity:
         if customer:
             if product:
                 available = False
-                if product.quantityAvailable >= needed_quantity:
+                if product.quantity >= quantity:
                     available = True
-                    product.quantityAvailable = (
-                        Product.quantityAvailable - needed_quantity
+                    product.quantity = (
+                        Product.quantity - quantity
                     )
                     db.session.commit()
-                    process_order(customer_id, product_id, needed_quantity)
+                    order = process_order(customerId, productId, quantity)
                 return (
                     jsonify(
                         {
-                            "customerId": customer_id,
+                            "orderId": order.id,
+                            "customerId": customerId,
                             "customerName": customer.name,
                             "customerEmail": customer.email,
                             "customerAddress": customer.address,
-                            "itemId": product_id,
-                            "itemDescription": product.productDescription,
-                            "quantity": needed_quantity,
+                            "productId": productId,
+                            "productDescription": product.productDescription,
+                            "quantity": quantity,
                             "pricePerUnit": product.pricePerUnit,
                             "currency": product.currency,
                             "available": available,

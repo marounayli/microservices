@@ -32,7 +32,8 @@ class Product(db.Model):
     productDescription = Column(String)
     pricePerUnit = Column(Float)
     currency = Column(String)
-    quantityAvailable = Column(Integer)
+    quantity = Column(Integer)
+    unitWeight = Column(Float)
 
     # Defining relationships
     order = relationship("Order", uselist=False, back_populates="product")
@@ -42,10 +43,10 @@ class Order(db.Model):
     __tablename__ = "orders"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    customer_id = Column(Integer, ForeignKey("customers.id"))
-    product_id = Column(Integer, ForeignKey("products.id"))
+    customerId = Column(Integer, ForeignKey("customers.id"))
+    productId = Column(Integer, ForeignKey("products.id"))
     quantity = Column(Integer)
-    country_of_origin = Column(String)
+    countryOfOrigin = Column(String)
     city = Column(String)
 
     # Defining relationships
@@ -58,9 +59,9 @@ class Payment(db.Model):
     __tablename__ = "payments"
 
     id = Column(Integer, primary_key=True)
-    order_id = Column(Integer, ForeignKey("orders.id"))
+    orderId = Column(Integer, ForeignKey("orders.id"))
     paymentType = Column(Enum(PaymentType))
-    paymentSuccesful = Column(Boolean)
+    paymentSuccessful = Column(Boolean)
 
     # Defining relationships
     order = relationship("Order", back_populates="payment")
@@ -70,9 +71,7 @@ class Shipment(db.Model):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True)
-    order_id = Column(Integer, ForeignKey("orders.id"))
-    unitWeight = Column(Float)
-    unitDimension = Column(String)
+    orderId = Column(Integer, ForeignKey("orders.id"))
     estimatedArrival = Column(DateTime)
     initiatedTime = Column(DateTime)
     initiated = Column(Boolean)
