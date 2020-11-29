@@ -104,6 +104,7 @@ def get_product(id):
                 "pricePerUnit": product.pricePerUnit,
                 "currency": product.currency,
                 "quantity": product.quantity,
+                "unitWeight": product.unitWeight
             }
         )
     else:
@@ -165,6 +166,7 @@ def get_all_products():
                         "pricePerUnit": product.pricePerUnit,
                         "currency": product.currency,
                         "quantity": product.quantity,
+                        "unitWright": product.unitWeight
                     }
                     for product in products
                 ]
