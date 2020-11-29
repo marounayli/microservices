@@ -354,10 +354,11 @@ def get_order_details():
             "customerName": customer.name,
             "productDescription": product.productDescription,
             "quantity": order.quantity,
-            "totalPrice": order.quantity*product.pricePerUnit,
+            "totalPrice": order.quantity * product.pricePerUnit,
             "currency": product.currency,
-            "paymentSuccessful": payment.paymentSuccessful if payment else "N/A",
-            "initiated": shipment.initiated if shipment else "N/A"
+            "paymentSuccessful": str(payment.paymentSuccessful) if payment else "N/A",
+            "shipmentInitiated": str(shipment.initiated) if shipment else "N/A",
+            "shipmentInitiatedTime": str(shipment.initiatedTime) if shipment else "N/A"
         }
         result_list.append(result)
     return jsonify(result_list)
