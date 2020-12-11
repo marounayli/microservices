@@ -5,7 +5,7 @@ from app import app, db
 from db_init import db_init
 from sqlalchemy import text
 
-# db_init()
+db_init()
 
 
 def process_order(customerId, productId, quantity):
@@ -261,6 +261,7 @@ def post_order():
                 return (
                     jsonify(
                         {
+                            "orderId":order.id,
                             "customerId": customerId,
                             "customerName": customer.name,
                             "customerEmail": customer.email,

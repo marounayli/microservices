@@ -101,7 +101,7 @@ def get_shipment(id):
 
 
 def checkPayment(customerId, CardNumber):
-    return random.random() > 0.5
+    return True
 
 
 if __name__ == '__main__':
